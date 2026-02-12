@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Task Manager</title>
+<style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; width: 100%; max-width: 900px; display: flex; min-height: 550px; }
+        .left-panel { flex: 1; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 40px; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .left-panel h1 { font-size: 2.5rem; margin-bottom: 20px; font-weight: 700; }
+        .left-panel p { font-size: 1.1rem; opacity: 0.9; line-height: 1.6; }
+        .right-panel { flex: 1; padding: 60px 50px; display: flex; flex-direction: column; justify-content: center; }
+        .form-container { width: 100%; }
+        .form-title { font-size: 1.8rem; color: #333; margin-bottom: 10px; font-weight: 600; }
+        .form-subtitle { color: #666; margin-bottom: 30px; font-size: 0.95rem; }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #555; font-weight: 500; font-size: 0.9rem; }
+        .form-group input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: all 0.3s; outline: none; }
+        .form-group input:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        .message { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; display: none; }
+        .error-message { background: #fee; color: #c33; }
+        .success-message { background: #efe; color: #3c3; }
+        .btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.3); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .toggle-form { text-align: center; margin-top: 25px; color: #666; font-size: 0.9rem; }
+        .toggle-form a { color: #667eea; text-decoration: none; font-weight: 600; cursor: pointer; }
+        .toggle-form a:hover { text-decoration: underline; }
+        .hidden { display: none; }
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .left-panel { padding: 40px 30px; }
+            .left-panel h1 { font-size: 2rem; }
+            .right-panel { padding: 40px 30px; }
+        }
+
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="left-panel">
+        <h1>📋 Task Manager</h1>
+        <p>Organize your tasks efficiently and boost your productivity with our powerful task management system.</p>
+    </div>
+
+    <div class="right-panel">
+        <!-- Login Form -->
+        <div class="form-container" id="loginForm">
+            <h2 class="form-title">Welcome Back</h2>
+            <p class="form-subtitle">Please login to your account</p>
+            
+            <div class="message error-message" id="loginError"></div>
+            
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" required placeholder="Enter your username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                </div>
+                
+                <button type="submit" class="btn" id="loginBtn">Login</button>
+            </form>
+            
+            <div class="toggle-form">
+                Don't have an account? <a id="showSignupLink">Sign up</a>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="form-container hidden" id="signupForm">
+            <h2 class="form-title">Create Account</h2>
+            <p class="form-subtitle">Sign up to get started</p>
+            
+            <div class="message error-message" id="signupError"></div>
+            <div class="message success-message" id="signupSuccess"></div>
+            
+            <form id="signupFormElement">
+                <div class="form-group">
+                    <label for="signupUsername">Username</label>
+                    <input type="text" id="signupUsername" required placeholder="Choose a username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" required placeholder="Create a password">
+                </div>
+                
+                <button type="submit" class="btn" id="signupBtn">Sign Up</button>
+            </form>
+            
+            <div class="toggle-form">
+                Already have an account? <a id="showLoginLink">Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const showSignupLink = document.getElementById('showSignupLink');
+const showLoginLink = document.getElementById('showLoginLink');
+
+showSignupLink.addEventListener('click', function() {
+    loginForm.classList.add('hidden');
+    signupForm.classList.remove('hidden');
+    clearMessages();
+});
+
+showLoginLink.addEventListener('click', function() {
+    signupForm.classList.add('hidden');
+    loginForm.classList.remove('hidden');
+    clearMessages();
+});
+
+function clearMessages() {
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('signupError').style.display = 'none';
+    document.getElementById('signupSuccess').style.display = 'none';
+}
+
+// Handle Login
+document.getElementById('loginFormElement').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginBtn');
+    const errorDiv = document.getElementById('loginError');
+    
+    btn.disabled = true;
+    btn.textContent = 'Logging in...';
+    errorDiv.style.display = 'none';
+    
+    fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, password: password })
+    })
+    .then(response => response.json().then(data => ({status: response.status, data: data})))
+    .then(result => {
+        if (result.status === 200) {
+            window.location.href = '/index';
+        } else {
+            errorDiv.textContent = result.data.message || 'Login failed';
+            errorDiv.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Login';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Login';
+    });
+});
+
+// Handle Signup
+document.getElementById('signupFormElement').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('signupUsername').value;
+    const password = document.getElementById('signupPassword').value;
+    const btn = document.getElementById('signupBtn');
+    const errorDiv = document.getElementById('signupError');
+    const successDiv = document.getElementById('signupSuccess');
+    
+    btn.disabled = true;
+    btn.textContent = 'Creating Account...';
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+    
+    fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, password: password })
+    })
+    .then(response => response.json().then(data => ({status: response.status, data: data})))
+    .then(result => {
+        if (result.status === 200) {
+            successDiv.textContent = 'Account created successfully! Redirecting...';
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                    signupForm.classList.add('hidden');
+                    loginForm.classList.remove('hidden');
+                    document.getElementById('loginUsername').value = username;
+                }, 1500);
+
+        } else {
+            errorDiv.textContent = result.data.message || 'Signup failed';
+            errorDiv.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Sign Up';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Sign Up';
+    });
+});
+</script>
+</body>
+</html>
